@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace _2023_GC_A2_Partiel_POO.Level_2
 {
@@ -35,6 +36,7 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
             _baseDefense = baseDefense;
             _baseSpeed = baseSpeed;
             _baseType = baseType;
+            CurrentHealth = baseHealth;
         }
         /// <summary>
         /// HP actuel du personnage
@@ -48,7 +50,8 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         {
             get
             {
-                throw new NotImplementedException();
+                if(CurrentEquipment != null) { return _baseHealth + CurrentEquipment.BonusHealth; }
+                return _baseHealth;
             }
         }
         /// <summary>
@@ -58,7 +61,8 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         {
             get
             {
-                throw new NotImplementedException();
+                if (CurrentEquipment != null) { return _baseAttack + CurrentEquipment.BonusAttack; }
+                return _baseAttack;
             }
         }
         /// <summary>
@@ -68,7 +72,8 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         {
             get
             {
-                throw new NotImplementedException();
+                if (CurrentEquipment != null) { return _baseDefense + CurrentEquipment.BonusDefense; }
+                return _baseDefense;
             }
         }
         /// <summary>
@@ -78,7 +83,8 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         {
             get
             {
-                throw new NotImplementedException();
+                if (CurrentEquipment != null) { return _baseSpeed + CurrentEquipment.BonusSpeed; }
+                return _baseSpeed;
             }
         }
         /// <summary>
@@ -90,7 +96,7 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         /// </summary>
         public StatusEffect CurrentStatus { get; private set; }
 
-        public bool IsAlive => throw new NotImplementedException();
+        public bool IsAlive => CurrentHealth > 0;
 
 
         /// <summary>
@@ -100,10 +106,38 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         /// </summary>
         /// <param name="s">skill attaquant</param>
         /// <exception cref="NotImplementedException"></exception>
+        /// 
         public void ReceiveAttack(Skill s)
         {
-            throw new NotImplementedException();
+            int result = UnityEngine.Random.Range(0, 101);
+            if (result >= 100 - s.CritChance)
+            {
+                CurrentHealth -= (s.Power - Defense) * 2;
+            }
+            else
+            {
+                CurrentHealth -= (s.Power - Defense);
+            }
+            if (!IsAlive) CurrentHealth = 0;
         }
+
+        public void ReceiveAttack(Skill s, out bool crit) //Pour savoir si l'on crit ou non
+        {
+            int result = UnityEngine.Random.Range(0, 101);
+            if(result >= 100 - s.CritChance)
+            {
+                crit = true;
+                CurrentHealth -= (s.Power - Defense) * 2;
+            }
+            else
+            {
+                crit = false;
+                CurrentHealth -= (s.Power - Defense);
+            }
+            if (!IsAlive) CurrentHealth = 0;
+        }
+
+        
         /// <summary>
         /// Equipe un objet au personnage
         /// </summary>
@@ -111,14 +145,21 @@ namespace _2023_GC_A2_Partiel_POO.Level_2
         /// <exception cref="ArgumentNullException">Si equipement est null</exception>
         public void Equip(Equipment newEquipment)
         {
-            throw new NotImplementedException();
+            if (newEquipment == null)
+            {
+                throw new ArgumentNullException();
+            }
+            else
+            {
+                CurrentEquipment = newEquipment;
+            }
         }
         /// <summary>
         /// Desequipe l'objet en cours au personnage
         /// </summary>
         public void Unequip()
         {
-            throw new NotImplementedException();
+            CurrentEquipment = null;
         }
 
     }
